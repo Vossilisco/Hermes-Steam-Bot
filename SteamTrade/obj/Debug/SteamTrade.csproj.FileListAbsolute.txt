@@ -1,0 +1,14 @@
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\SteamTrade.dll
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\SteamTrade.pdb
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\protobuf-net.dll
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\SteamAuth.dll
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\SteamKit2.dll
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\protobuf-net.pdb
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\protobuf-net.xml
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\SteamAuth.pdb
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\bin\Debug\SteamKit2.xml
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\obj\Debug\SteamTrade.csprojResolveAssemblyReference.cache
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\obj\Debug\SteamTrade.dll
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamTrade\obj\Debug\SteamTrade.pdb

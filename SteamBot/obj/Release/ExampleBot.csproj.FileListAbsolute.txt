@@ -1,0 +1,6 @@
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\Bin\Release\SteamBot.exe.config
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\Bin\Release\SteamBot.exe
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\Bin\Release\SteamBot.pdb
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamBot\obj\Release\ExampleBot.csprojResolveAssemblyReference.cache
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamBot\obj\Release\SteamBot.exe
+C:\Users\Vossile\Documents\Github\Hermes-Steam-bot\SteamBot\obj\Release\SteamBot.pdb
