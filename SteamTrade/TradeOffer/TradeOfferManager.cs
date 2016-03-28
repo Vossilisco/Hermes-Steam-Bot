@@ -147,9 +147,9 @@ namespace SteamTrade.TradeOffer
             return (Int32)(DateTime.Now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 
-        public TradeOffer NewOffer(SteamID otroTio)
+        public TradeOffer NewOffer(SteamID other)
         {
-            var offer = new TradeOffer(session, otroTio);
+            var offer = new TradeOffer(session, other);
             return offer;
         }
 

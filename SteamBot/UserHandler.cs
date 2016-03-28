@@ -23,8 +23,7 @@ namespace SteamBot
         private Task<Inventory> otherInventoryTask;
         private TaskCompletionSource<string> _waitingOnUserResponse;
 
-        protected SteamWeb SteamWeb
-        {
+        protected SteamWeb SteamWeb {
             get
             {
                 if (Bot == null || Bot.SteamWeb == null)
@@ -35,15 +34,13 @@ namespace SteamBot
             }
         }
 
-        public UserHandler(Bot bot, SteamID sid)
-        {
+        public UserHandler(Bot bot, SteamID sid) {
             Bot = bot;
             OtherSID = sid;
             GetOtherInventory();
         }
 
-        private bool HandleWaitingOnUserResponse(string message)
-        {
+        private bool HandleWaitingOnUserResponse(string message){
             if (_waitingOnUserResponse == null)
                 return false;
 
@@ -67,13 +64,11 @@ namespace SteamBot
         /// }
         /// </code>
         /// </example>
-        public void GetOtherInventory()
-        {
+        public void GetOtherInventory() {
             otherInventoryTask = Task.Factory.StartNew(() => Inventory.FetchInventory(OtherSID, Bot.ApiKey, SteamWeb));
         }
 
-        public Inventory OtherInventory
-        {
+        public Inventory OtherInventory {
             get
             {
                 otherInventoryTask.Wait();
