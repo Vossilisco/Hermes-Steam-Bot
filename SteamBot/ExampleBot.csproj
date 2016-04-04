@@ -73,7 +73,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constantes.cs" />
-    <Compile Include="CSGOskinsIdentifier.cs" />
     <Compile Include="Hermes.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="SteamGroups\CMsgInviteUserToGroup.cs" />

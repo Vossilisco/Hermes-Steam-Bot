@@ -5,9 +5,8 @@ using SteamKit2;
 using SteamTrade;
 using SteamTrade.TradeOffer;
 using System.IO;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Linq;
+using System.Web;
+using System.Web.Script.Serialization;
 
 namespace SteamBot
 {
@@ -58,59 +57,134 @@ namespace SteamBot
         /// </summary>
         public override void OnMessage(string message, EChatEntryType type) {
 
-            if(message == "Hola!") {
-                SendChatMessage("Hola! Soy Hermes, un bot diseñado por Vossile.");
-            }
-            if(message.StartsWith("!admin.")){
-                ///Nos quedamos con la ID del arma
-                string idmini = message.Substring(7);
-                //Comprobamos que tenga los valores normales de una skin de CSGO
-                if(EsIDSkin(idmini)) {
-                    SendChatMessage("Se obtendrá su inventario y a continuacion el nombre de la skin con ID: {0} .",idmini);
+            ///Para revisar si el perfil de alguien es publico o privado
+            if(message.StartsWith("!admin.checkinvent.")) {
+
+                string minid = message.Split('.')[2];
+                if(minid.Length == 17 && EsNumero(minid)) {
+
+                    SendChatMessage("Se intentará el revisar el inventario del usuario con ID64: {0}", minid);
 
                     ///Convertimos la ID de la otra persona en steamid64
-                    ulong _idObjetivo = OtherSID.ConvertToUInt64();
-                    sacarInventario(_idObjetivo);
-                    SendChatMessage("Inventario obtenido.");
+                    ulong idObjetivo = Convert.ToUInt64(minid);
+
+                    ///Llamamos a la funcion para ver si su inventario es publico o privado
+                    if(InventarioPublico(idObjetivo)) {
+                        SendChatMessage("Se puede obtener su inventario, es publico.");
+                    } else {
+                        SendChatMessage("No se puede obtener su inventario, es privado.");
+                    }
+                } else {
+                    SendChatMessage("ID64 no reconocida: {0} .", minid);
                 }
-                
+
             } else {
-                SendChatMessage(Bot.ChatResponse);
+                ///Para saber si alguien tiene un arma en concreto, sabiendo el id de esta.
+                if(message.StartsWith("!admin.checkweapon.")) {
+                    string minid;
+                    string armaid;
+                    string nombreDelArma = "";
+                    ulong idObjetivo;
+
+                    minid = message.Split('.')[2];
+                    armaid = message.Split('.')[3];
+
+                    idObjetivo = Convert.ToUInt64(minid);
+                    ///HACE FALTA METER COMPROBACIONES DE MINID Y ARMAID
+
+                    nombreDelArma = NombreArma(idObjetivo, armaid);
+                    if(InventarioPublico(idObjetivo)) {
+                        SendChatMessage("El ID: {0} pertenece a: {1}  .", armaid, nombreDelArma);
+                    } else {
+                        SendChatMessage("Error, su inventario es privado.");
+                    }
+                } else {
+                    ///Te dice tu ID y tu ID64.
+                    if(message == "!admin.myid") {
+
+                        SendChatMessage("Tu ID es: {0}  y tu ID64 es: {1}  .",OtherSID,OtherSID.ConvertToUInt64());
+                    } else {
+                        //Para todo lo demas... "Buenos dias!"
+                        SendChatMessage(Bot.ChatResponse);
+                    }
+                }
             }
         }
 
         /// <summary>
-        /// Obtiene el inventario de la ID pasada
+        /// Intenta obtener el inventario de la ID pasada.
         /// </summary>
-        /// <param name="other">SteamId64 del usuario.</param>
-        public void sacarInventario (ulong id) {
-
-            /// Incluimos en 'url' la URL completa junto al ID del usuario
+        /// <param name="accepted">ID 64 del usuario propietario del inventario.</param>
+        /// <param name="response">True si es publico, false si no.</param>
+        bool InventarioPublico (ulong id) {
+            /// En este string pondremos el inventario del id en formato json.
+            string inventario;
+            
+            /// Incluimos en 'url' la URL completa junto al ID del usuario.
             string options = string.Format("{0}", id);
             string url = String.Format(Constantes.BASEURL, options);
 
-            /// Hacemos el GET a la pagina
-            var request = HttpWebRequest.Create(url);
-            request.ContentType = "application/json; charset=utf-8";
-            string texto;
-            var respuesta = (HttpWebResponse)request.GetResponse();
+            /// Hacemos el GET a la pagina para obtener el inventario en json.
+            var requeste = WebRequest.Create(url);
+            HttpWebResponse webResponse = ( HttpWebResponse )requeste.GetResponse();
+            StreamReader fichero = new StreamReader(webResponse.GetResponseStream(), System.Text.Encoding.UTF8);
+            inventario = fichero.ReadToEnd();
 
-            ///Guardamos el resultado en un string con formato JSON
-            using(var sr = new StreamReader(respuesta.GetResponseStream())) {
-                texto = sr.ReadToEnd();
+            var jss = new JavaScriptSerializer();
+            var dict = jss.Deserialize<dynamic>(inventario);
+
+            ///Comprobamos el campo success para saber si se ha podido coger el inventario
+            if(dict["success"].ToString() == "True") { 
+                return true;
+            } else {
+                return false;
             }
+        }
 
-            JObject busqueda = JObject.Parse(texto);
-            IList<JToken> results = busqueda.Children().ToList();
+        /// <summary>
+        /// Obtiene el nombre de un arma del inventario de la ID pasada.
+        /// </summary>
+        /// <param name="accepted">ID 64 del usuario propietario del inventario.</param>
+        /// <param name="response">String del nombre del arma.</param>
+        string NombreArma(ulong id,string armaid) {
+            /// En este string pondremos el inventario del id en formato json.
 
-            IList<CSGOskinsIdentifier> identificadores = new List<CSGOskinsIdentifier>();
-            foreach(JToken res in results) {
-                CSGOskinsIdentifier identificador = JsonConvert.DeserializeObject<CSGOskinsIdentifier>(res.ToString());
-                identificadores.Add(identificador);
+            string inventario;
+            string classidDESCR = "";
+
+            /// Incluimos en 'url' la URL completa junto al ID del usuario.
+            string options = string.Format("{0}", id);
+            string url = String.Format(Constantes.BASEURL, options);
+
+            /// Hacemos el GET a la pagina para obtener el inventario en json.
+            var requeste = WebRequest.Create(url);
+            HttpWebResponse webResponse = ( HttpWebResponse )requeste.GetResponse();
+            StreamReader fichero = new StreamReader(webResponse.GetResponseStream(), System.Text.Encoding.UTF8);
+            inventario = fichero.ReadToEnd();
+
+            var jss = new JavaScriptSerializer();
+            var dict = jss.Deserialize<dynamic>(inventario);
+
+            ///Recorremos el JSON, concretamente las Descripciones.
+            foreach(var descript in dict["rgDescriptions"]) {
+                classidDESCR = descript.Key.ToString();
+                /// Hasta que hallamos una que tenga el mismo ID que la que entra y devolvemos su atributo name.
+                if(armaid == classidDESCR.Split('_')[0]) {
+                    string name = dict["rgDescriptions"][classidDESCR]["name"].ToString();
+                    return name;
+                }
             }
+            return "Arma no encontrada";
+        }
 
-            Log.Info(identificadores.Count.ToString());
-
+        /// <summary>
+        /// Es llamado cuando elusuario acepta/rechaza la peticion de intercambio.
+        /// </summary>
+        /// <param name="accepted">True si acepto, false si no.</param>
+        /// <param name="response">Respuesta en String a la llamada.</param>
+        public override void OnTradeRequestReply(bool accepted, string response) {
+            if(!accepted) SendChatMessage("Has rechazado el intercambio.");
+            else SendChatMessage("Intercambio realizado con exito.");
         }
 
         /// <summary>
@@ -133,16 +207,6 @@ namespace SteamBot
         /// </summary>
         public override bool OnTradeRequest() {
             return true;
-        }
-
-        /// <summary>
-        /// Es llamado cuando elusuario acepta/rechaza la peticion de intercambio.
-        /// </summary>
-        /// <param name="accepted">True si acepto, false si no.</param>
-        /// <param name="response">Respuesta en String a la llamada.</param>
-        public override void OnTradeRequestReply(bool accepted, string response) {
-            if(!accepted) SendChatMessage("Has rechazado el intercambio.");
-            else SendChatMessage("Intercambio realizado con exito.");
         }
 
         public override void OnTradeError(string error) {
@@ -182,40 +246,17 @@ namespace SteamBot
         }
 
         /// <summary>
-        /// Cuando un usuario pide cambiar skins suyas por puntos en la web.
-        /// </summary>
-        public void VendiendoSkins(SteamID usuario, List<Schema.Item> listaDeArmas) {
-            for(int i = 0; i < 0; i++) {
-                //   OnTraddeAddItem (listaDeArmas[i],);
-            }
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Comprueba si el objeto que se le pasa es una ID de una skin.
+        /// Comprueba si el objeto que se le pasa es un numero;
         /// </summary>
         /// <param name="Expression"></param>
-        /// <returns>True si es una ID valida</returns>
-        public bool EsIDSkin(object Expression) {
+        /// <returns>True si es un numero</returns>
+        public bool EsNumero(object Expression) {
             bool isNum = false;
-            bool tam9 = false;
             double retNum;
 
             isNum = Double.TryParse(Convert.ToString(Expression), System.Globalization.NumberStyles.Any, System.Globalization.NumberFormatInfo.InvariantInfo, out retNum);
 
-            tam9 = Convert.ToString(Expression).Length == 9;
-
-            if(isNum == true) {
-                if(tam9 == true) {
-                    return true;
-                } else {
-                    SendChatMessage("No tiene 9 digitos");
-                    return false;
-                }
-            } else {
-                SendChatMessage("No es un numero");
-                return false;
-            } 
+            return isNum;
         }
     }
 }
